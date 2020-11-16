@@ -23,18 +23,35 @@ public class Emp {
 	private int comm; // 커미션
 	private int deptNo; // 부서번호
 	
-	public Emp() {} // 기본 생성자
+	public Emp() { } // 기본 생성자
+	
+	// 사원 정보 수정을 위한 생성자
+	public Emp(int empNo, String job, int sal, int comm) {
+		super();
+		this.empNo = empNo;
+		this.job = job;
+		this.sal = sal;
+		this.comm = comm;
+	}
 
-	public Emp(int empNo, String eName, String job, int mgr, Date hireDate, int sal, int comm, int deptNo) {
+
+	// 사원 정보 삽입을 위해서 만든 생성자
+	public Emp(int empNo, String eName, String job, int mgr, int sal, int comm, int deptNo) {
 		super();
 		this.empNo = empNo;
 		this.eName = eName;
 		this.job = job;
 		this.mgr = mgr;
-		this.hireDate = hireDate;
 		this.sal = sal;
 		this.comm = comm;
 		this.deptNo = deptNo;
+	}
+
+
+
+	public Emp(int empNo, String eName, String job, int mgr, Date hireDate, int sal, int comm, int deptNo) {
+		this(empNo, eName, job, mgr, sal, comm, deptNo);
+		this.hireDate = hireDate;
 	}
 
 	public int getEmpNo() {
