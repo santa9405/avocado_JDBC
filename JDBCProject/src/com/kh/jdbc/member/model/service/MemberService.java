@@ -1,11 +1,14 @@
 package com.kh.jdbc.member.model.service;
 
 // static import : 특정 static 필드, 메소드 호출 시 클래스명을 생략할 수 있게하는 구문
-import static com.kh.jdbc.common.JDBCTemplate.*;
+import static com.kh.jdbc.common.JDBCTemplate.close;
+import static com.kh.jdbc.common.JDBCTemplate.commit;
+import static com.kh.jdbc.common.JDBCTemplate.getConnection;
+import static com.kh.jdbc.common.JDBCTemplate.rollback;
 
 import java.sql.Connection;
+import java.util.List;
 
-import com.kh.jdbc.common.JDBCTemplate;
 import com.kh.jdbc.member.model.dao.MemberDAO;
 import com.kh.jdbc.member.model.vo.Member;
 
@@ -52,6 +55,122 @@ public class MemberService {
 		
 		// DB 조회 결과인 loginMember 반환
 		return loginMember;
+	}
+
+	/** 검색어 포함 이름 검색 Service
+	 * @param name
+	 * @return list
+	 * @throws Exception
+	 */
+	public List<Member> selectMemberName(String name) throws Exception {
+//	 	* 1. Connection 생성
+		Connection conn = getConnection();
+		
+//	 	* 2. DAO에서 알맞은 메소드 호출 후 결과 반환 받기
+		List<Member> list = mDAO.selectMemberName(conn, name);
+		
+//	 	* 3. Connection 반환
+		close(conn);
+		
+		// ** 전화번호 가운데를 **** 로 치환하기
+		// 010-1234-1234 --> 010-****-1234
+		// 1) split() 사용
+		for(Member mem : list) {
+			String[] arr = mem.getPhone().split("-");
+			mem.setPhone( arr[0] + "-****-" + arr[2]);
+		}
+		
+		
+//	    * 4. DAO 호출 결과를 그대로 View로 반환
+		return list;
+		
+	}
+
+	public List<Member> selectGender(char gender)  throws Exception{
+		Connection conn = getConnection();
+		
+		List<Member> list = mDAO.selectGender(conn, gender);
+		
+		close(conn);
+		
+		for(Member mem : list) {
+//			String[] arr = mem.getPhone().split("-");
+//			mem.setPhone(arr[2]);
+//		}
+		
+		String ph = mem.getPhone();
+		mem.setPhone (ph.substring( ph.lastIndexOf("-")+1 , ph.length() ) );
+		//			  	start <=		    str			  	  < end
+		//				010-1234-5678 마지막 "-"+1 부터 길이까지
+		}
+		return list;
+	}
+
+	/** 내 정보 수정 Service
+	 * @param upMember
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updateMyInfo(Member upMember) throws Exception {
+		// Connection 생성
+		Connection conn = getConnection();
+		
+		// 생성한 커넥션과 매개변수 upMember를 DAO메소드의 매개변수로 전달하고
+		// 결과를 반환 받음
+		int result = mDAO.updateMyInfo(conn, upMember);
+		
+		// UPDATE(DML)을 진행 하였으므로 트랜잭션 처리
+		if(result > 0)	commit(conn);
+		else			rollback(conn);
+		
+		close(conn);
+		
+		return result;
+	}
+
+	/** 비밀번호 변경 Service
+	 * @param upMember
+	 * @param newPw
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updatePw(Member upMember, String newPw) throws Exception {
+		// Connection 생성
+		Connection conn = getConnection();
+		
+		// 생성한 커넥션과 매개변수 upMember를 DAO메소드의 매개변수로 전달하고
+		// 결과를 반환 받음
+		int result = mDAO.updatePw(conn, upMember, newPw);
+		
+		// UPDATE(DML)을 진행 하였으므로 트랜잭션 처리
+		if(result > 0)	commit(conn);
+		else			rollback(conn);
+		
+		close(conn);
+		
+		return result;
+	}
+
+	/** 회원 탈퇴 Service
+	 * @param upMember
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updateSecessionMember(Member upMember) throws Exception {
+		// Connection 생성
+		Connection conn = getConnection();
+		
+		// 생성한 커넥션과 매개변수 upMember를 DAO메소드의 매개변수로 전달하고
+		// 결과를 반환 받음
+		int result = mDAO.updateSecessionMember(conn, upMember);
+		
+		// UPDATE(DML)을 진행 하였으므로 트랜잭션 처리
+		if(result > 0)	commit(conn);
+		else			rollback(conn);
+		
+		close(conn);
+		
+		return result;
 	}
 	
 }

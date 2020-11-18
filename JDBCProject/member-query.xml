@@ -16,5 +16,50 @@ AND MEM_PW = ?
 AND SCSN_FL = 'N'
 </entry>
 
+<!-- 검색어 포함 이름 검색  -->
+<entry key="selectMemberName">
+SELECT MEM_ID, MEM_NM, PHONE, GENDER, HIRE_DT
+FROM TB_MEMBER 
+WHERE MEM_NM LIKE '%' || ? || '%'
+AND SCSN_FL = 'N'
+</entry>
+
+<entry key="selectGender">
+SELECT MEM_ID, MEM_NM, PHONE, GENDER
+FROM TB_MEMBER
+WHERE GENDER = ?
+AND SCSN_FL = 'N'
+</entry>
+
+<!-- PHONE 컬럼에 SUBSTR 적용
+SELECT MEM_ID, MEM_NM, 
+       SUBSTR(PHONE, INSTR(PHONE, '-', -1) +1), PHONE, 
+       GENDER
+FROM TB_MEMBER
+WHERE GENDER = ?
+AND SCSN_FL = 'N' -->
+
+<!-- 내 정보 수정 -->
+<entry key="updateMyInfo">
+UPDATE TB_MEMBER SET
+MEM_NM = ?, PHONE = ?, GENDER = ?
+WHERE MEM_NO = ?
+</entry>
+
+<!-- 비밀번호 변경 -->
+<entry key="updatePw">
+UPDATE TB_MEMBER SET
+MEM_PW = ?
+WHERE MEM_NO = ?
+AND MEM_PW = ?
+</entry>
+
+<entry key="updateSecessionMember">
+UPDATE TB_MEMBER SET
+SCSN_FL = 'Y'
+WHERE MEM_NO = ?
+AND MEM_PW = ?
+</entry>
+
 
 </properties>

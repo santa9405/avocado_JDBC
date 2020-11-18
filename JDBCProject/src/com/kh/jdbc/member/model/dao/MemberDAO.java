@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.kh.jdbc.member.model.vo.Member;
@@ -38,7 +40,7 @@ public class MemberDAO {
 	 * @return result
 	 * @throws Exception
 	 */
-	public int signUp(Connection conn, Member newMember) throws Exception{
+	public int signUp(Connection conn, Member newMember) throws Exception {
 		/* 이전 DAO에서 하던 역할
 		 * 1) JDBC 드라이버 등록
 		 * 2) DB 연결 커넥션 생성
@@ -94,8 +96,8 @@ public class MemberDAO {
 			pstmt = conn.prepareStatement(query);
 			
 			// SQL 구문의 위치홀더에 알맞는 값을 배치
-			pstmt.setNString(1, member.getMemId());
-			pstmt.setNString(2, member.getMemPw());
+			pstmt.setString(1, member.getMemId());
+			pstmt.setString(2, member.getMemPw());
 			
 			// SQL 수행 후 결과를 ResultSet으로 반환 받음
 			rset = pstmt.executeQuery();
@@ -121,4 +123,171 @@ public class MemberDAO {
 		return loginMember;
 	}
 
+
+	/** 검색어 포함 이름 검색 DAO
+	 * @param conn
+	 * @param name
+	 * @return list
+	 * @throws Exception
+	 */
+	public List<Member> selectMemberName(Connection conn, String name) throws Exception {
+//		* 1. 반환할 결과를 저장할 변수 List<Member> 선언
+		List<Member> list = null;
+		
+		try {
+// 		 * 2. SQL 작성
+//  	 * SELECT * FROM MEMBER WHERE MEM_NM LIKE '%' || ? || '%'
+		String query = prop.getProperty("selectMemberName");
+			
+//	   	 * 3. PreparedStatement 객체 생성
+		pstmt = conn.prepareStatement(query);
+			
+// 		 * 4. 위치홀더(?)에 알맞은 값 배치
+		pstmt.setString(1, name);
+			
+//		 * 5. SQL 수행 후 결과(ResultSet)를 반환 받음
+		rset = pstmt.executeQuery();
+			
+//	  	 * 6. 수행 결과를 모두 List에 담기
+		while(rset.next()) {
+			list = new ArrayList<Member>();
+			list.add( new Member(rset.getString(1), 
+								rset.getString(2), 
+								rset.getString(3), 
+								rset.getString(4).charAt(0), 
+								rset.getDate(5)) );
+		}
+			
+		}finally {
+		//	* 7. 사용한 JDBC 객체 반환
+			close(rset);
+			close(pstmt);			
+		}
+		
+		//	* 8. 조회 결과가 담긴 List 반환
+		return list;
+	}
+
+
+	public List<Member> selectGender(Connection conn, char gender) throws Exception {
+		List<Member> list = null;
+		
+		try {
+			String query = prop.getProperty("selectGender");
+			
+			pstmt = conn.prepareStatement(query);
+			
+			pstmt.setString(1, gender + "");
+			// setChar는 받지 않기 때문에 char+"" 의 형태로 담아줌
+			
+			rset = pstmt.executeQuery();
+			
+			while(rset.next()) {
+				list = new ArrayList<Member>();
+				list.add( new Member(rset.getString(1), 
+						rset.getString(2), 
+						rset.getString(3), 
+						rset.getString(4).charAt(0)));
+			}
+			
+		}finally {
+			close(rset);
+			close(pstmt);
+		}
+	
+		return list;
+	}
+
+
+	/** 내 정보 수정 DAO
+	 * @param conn
+	 * @param upMember
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updateMyInfo(Connection conn, Member upMember) throws Exception {
+		int result = 0; // DB 수행 결과를 저장할 변수 선언
+		
+		try {
+			String query = prop.getProperty("updateMyInfo");
+			
+			// PrepareStatement 객체 생성 후 위치홀더에 알맞은 값 배치
+			pstmt = conn.prepareStatement(query);
+			
+			pstmt.setString(1, upMember.getMemNm());
+			pstmt.setString(2, upMember.getPhone());
+			pstmt.setString(3, upMember.getGender()+"");
+			pstmt.setInt(4, upMember.getMemNo());
+			
+			result = pstmt.executeUpdate();
+			
+		}finally {
+			close(pstmt);
+		}
+
+		return result;
+	}
+
+
+	/** 비밀번호 변경 DAO
+	 * @param conn
+	 * @param upMember
+	 * @param newPw
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updatePw(Connection conn, Member upMember, String newPw) throws Exception {
+		int result = 0; // DB 수행 결과를 저장할 변수 선언
+		
+		try {
+			String query = prop.getProperty("updatePw");
+			
+			// PrepareStatement 객체 생성 후 위치홀더에 알맞은 값 배치
+			pstmt = conn.prepareStatement(query);
+			
+			pstmt.setString(1, newPw); // 새 비밀번호
+			pstmt.setInt(2, upMember.getMemNo()); // 회원 번호
+			pstmt.setString(3, upMember.getMemPw()); // 현재 비밀번호
+			
+			// SQL 구문 수행 후 결과를 반환받아 저장
+			result = pstmt.executeUpdate();
+			
+		}finally {
+			// DB 자원 반환
+			close(pstmt);
+		}
+
+		return result;
+	}
+
+
+	/** 회원탈퇴 DAO
+	 * @param conn
+	 * @param upMember
+	 * @return result
+	 * @throws Exception
+	 */
+	public int updateSecessionMember(Connection conn, Member upMember) throws Exception {
+		int result = 0; // DB 수행 결과를 저장할 변수 선언
+		
+		try {
+			String query = prop.getProperty("updateSecessionMember");
+			
+			// PrepareStatement 객체 생성 후 위치홀더에 알맞은 값 배치
+			pstmt = conn.prepareStatement(query);
+			
+			pstmt.setInt(1, upMember.getMemNo()); // 회원 번호
+			pstmt.setString(2, upMember.getMemPw()); // 현재 비밀번호
+			
+			// SQL 구문 수행 후 결과를 반환받아 저장
+			result = pstmt.executeUpdate();
+			
+		}finally {
+			// DB 자원 반환
+			close(pstmt);
+		}
+
+		return result;
+	}
+	
 }

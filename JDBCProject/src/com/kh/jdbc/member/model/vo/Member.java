@@ -2,7 +2,7 @@ package com.kh.jdbc.member.model.vo;
 
 import java.sql.Date;
 
-public class Member {
+public class Member { // 회원 한명의 정보를 저장하기 위함
 	private int memNo; // 회원 번호
 	private String memId; // 아이디
 	private String memPw; // 비밀번호
@@ -14,6 +14,18 @@ public class Member {
 	
 	public Member() { }
 	
+	
+	// 내정보 수정용 생성자
+	public Member(int memNo, String memNm, String phone, char gender) {
+		super();
+		this.memNo = memNo;
+		this.memNm = memNm;
+		this.phone = phone;
+		this.gender = gender;
+	}
+
+
+
 	// 회원 가입용 생성자
 	public Member(String memId, String memPw, String memNm, String phone, char gender) {
 		super();
@@ -23,6 +35,28 @@ public class Member {
 		this.phone = phone;
 		this.gender = gender;
 	}
+	
+	// 회원 검색용 생성자
+	public Member(String memId, String memNm, String phone, char gender, Date hireDt) {
+		super();
+		this.memId = memId;
+		this.memNm = memNm;
+		this.phone = phone;
+		this.gender = gender;
+		this.hireDt = hireDt;
+	}
+	
+	// 성별 검색용 생성자
+	public Member(String memId, String memNm, String phone, char gender) {
+		super();
+		this.memId = memId;
+		this.memNm = memNm;
+		this.phone = phone;
+		this.gender = gender;
+	}
+	
+
+
 
 	// 로그인용 생성자
 	public Member(int memNo, String memId, String memNm, String phone, char gender, Date hireDt) {
@@ -34,6 +68,9 @@ public class Member {
 		this.gender = gender;
 		this.hireDt = hireDt;
 	}
+
+
+
 
 	public Member(int memNo, String memId, String memPw, String memNm, String phone, char gender, Date hireDt,
 			char scsnFl) {
